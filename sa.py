@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import requests
 from bs4 import BeautifulSoup
-import csv
 import logging
-logging.basicConfig(level=logging.INFO,filename='log.txt')
+logging.basicConfig(level=logging.INFO,filename='c:/temp/log.txt')
+from db import DB
+# import csv
 
 
 class SssSpider():
@@ -24,6 +25,7 @@ class SssSpider():
             colums.clear()
             #logging.info(item.article.attrs)
             title=item.attrs['data-listing-title']
+            #print title
             temp=item.attrs['data-listing-template']
             a=item.find_all('a')[0]
             href=a.attrs['href']
@@ -31,7 +33,8 @@ class SssSpider():
             text=tagDiv.string
             #logging.info(tagDiv)
             #logging.info(tagDiv.string)
-            colums['title']=title
+            title=href.split('/')[-1] if href.split('/')[-1] else href.split('/')[-2]
+            colums['title']=title.replace('-',' ')
             colums['temp']=temp
             colums['href']=href
             colums['tag']=text
@@ -40,15 +43,21 @@ class SssSpider():
             
 if __name__ =='__main__':
     sss=SssSpider()
-    with open('item.csv','wb') as f:
-        writer=csv.writer(f)
-        writer.writerow(('title','temp','href','tag'))    
-        for item in sss.parse():
-            #item=dict(item)
-            title=item.get('title')
-            temp=item.get('temp')
-            href=item.get('href')
-            tag=item.get('tag')
-            writer.writerow((title,temp, href, tag))
+    # with open('item.csv','wb') as f:
+        # writer=csv.writer(f)
+        # writer.writerow(('title','temp','href','tag'))    
+        # for item in sss.parse():
+            # #item=dict(item)
+            # title=item.get('title')
+            # temp=item.get('temp')
+            # href=item.get('href')
+            # tag=item.get('tag')
+            # writer.writerow((title,temp, href, tag))
+            
+    dd=DB('contet.db')
+    for item in sss.parse():    
+        dd.insertDB(item)
         
+    #dd.queryDB('temp=="Home"')    
+    dd.closeDB()    
         
