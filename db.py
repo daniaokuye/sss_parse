@@ -26,8 +26,7 @@ class DB:
         key=['title','temp','href','tag','content']
         try:
             self.__cur.execute(query,map(lambda x:dict.get(x),key) )
-        except sqlite3.IntegrityError,e:
-            print e
+        except sqlite3.IntegrityError:
             self.updateDB(dict)    
         self.__conn.commit()
         
@@ -39,12 +38,9 @@ class DB:
         return self.__cur.fetchall()
     
     def updateDB(self,dict):#dict.get("content")
-        try:
-            query='update sc set content=%r where title=%r'%\
-                (dict.get("content").encode('utf-8'),dict.get("title").encode('utf-8'))
-        except AttributeError,e:
-            print e
-            return
+        query='update sc set content=%r where title=%r'%\
+            (dict.get("content").encode('utf-8'),dict.get("title").encode('utf-8'))
+        
         try:
             self.__cur.execute(query)
         except sqlite3.OperationalError,e:
